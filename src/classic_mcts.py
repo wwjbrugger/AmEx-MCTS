@@ -105,12 +105,12 @@ class ClassicMCTS:
 
     def calculate_move_probabilities(self, s_0, source_dict, softmax=False):
         possible_actions = np.where(self.valid_moves_for_s[s_0])[0]
-        action_utilities = np.zeros(len(possible_actions), dtype=np.float32)
+        action_utilities = np.zeros(len(possible_actions))
         for i, a in enumerate(possible_actions):
             if (s_0, a) in source_dict:
                 action_utilities[i] = source_dict[(s_0, a)]
 
-        move_probabilities = np.zeros(self.action_size, dtype=np.float32)
+        move_probabilities = np.zeros(self.action_size)
 
         if self.temperature == 0:  # Greedy selection. One hot encode the most visited paths (randomly break ties).
             max_index = possible_actions[tie_breaking_argmax(action_utilities)]
@@ -121,7 +121,7 @@ class ClassicMCTS:
                     # Qsa
                     action_utilities = np.exp(action_utilities / self.temperature)
                 except FloatingPointError:
-                    move_probabilities = np.zeros(self.action_size, dtype=np.float32)
+                    move_probabilities = np.zeros(self.action_size)
                     max_index = possible_actions[tie_breaking_argmax(action_utilities)]
                     move_probabilities[max_index] = 1.0
                     return move_probabilities
@@ -129,9 +129,9 @@ class ClassicMCTS:
             # pass
             move_probabilities[possible_actions] = action_utilities
             try:
-                move_probabilities = np.divide(move_probabilities, np.sum(move_probabilities), dtype=np.float32)
+                move_probabilities = np.divide(move_probabilities, np.sum(move_probabilities))
             except FloatingPointError:
-                move_probabilities = np.zeros(self.action_size, dtype=np.float32)
+                move_probabilities = np.zeros(self.action_size)
                 max_index = possible_actions[tie_breaking_argmax(action_utilities)]
                 move_probabilities[max_index] = 1.0
                 return move_probabilities
@@ -223,6 +223,11 @@ class ClassicMCTS:
         search can get stuck *ad infinitum*.
         """
         state_hash = self.game.getHash(state=state)
+
+        # terminate todo
+        if len(path) > self.game.max_path_length:
+            return self.args.minimum_reward
+
         # SELECT
         a = self.select_action_with_highest_upper_confidence_bound(state_hash)
         # EXPAND and SIMULATE
@@ -258,7 +263,7 @@ class ClassicMCTS:
     def rollout_for_valid_moves(self, a, state_hash,
                                 state, path):
         # explore new part of the tree
-        value = np.float32(0)
+        value = 0
         next_state, reward = self.game.getNextState(
             state=state,
             action=a
@@ -284,7 +289,7 @@ class ClassicMCTS:
                     state=next_state,
                     path=path + (a,)
                 )
-                value = np.float32((value_search + value) / 2)
+                value = (value_search + value) / 2
         else:
             # next state is done
             if reward >= 0.98:
@@ -344,14 +349,21 @@ class ClassicMCTS:
             times_s_a_visited = 0
             q_value = 0
 
-        if self.args.use_puct:  # todo init
+        if self.args.use_puct:
             # Standard PUCT formula from the AlphaZero paper
             exploration = self.args.c1 * self.Ps[state_hash][a] * np.sqrt(
                 self.times_s_was_visited[state_hash] + 1) / (1 + times_s_a_visited)
         else:
             # Standard UCT/UCB1 formula
-            exploration = self.args.c1 * np.sqrt(np.maximum(np.log(
-                self.times_s_was_visited[state_hash]), 1) / times_s_a_visited)
+            if times_s_a_visited == 0:
+                return np.inf
+
+            if self.times_s_was_visited[state_hash] == 0:
+                denominator = 1.0
+            else:
+                denominator = np.log(self.times_s_was_visited[state_hash])
+
+            exploration = self.args.c1 * np.sqrt(denominator / times_s_a_visited)
 
         return q_value + exploration
     
@@ -366,7 +378,7 @@ class ClassicMCTS:
             done = (term or trunc)
             ret += gamma * r
             gamma *= self.args.gamma
-        return np.float32(ret)
+        return ret
 
     def rollout_equation(self, state):
         ret = 0.0
