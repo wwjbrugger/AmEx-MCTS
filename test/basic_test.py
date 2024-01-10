@@ -29,7 +29,7 @@ class BasicTest(unittest.TestCase):
     def test_equation_EndgameMCTS(self):
         self.args.env_str = 'Equation'
         self.args.mcts_engine = "EndgameMCTS"
-        self.args.data_path = 'data/nguyen'
+        self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
         self.args.max_len_datasets = 10
@@ -44,7 +44,7 @@ class BasicTest(unittest.TestCase):
     def test_equation_EndgameMCTS_rollout(self):
         self.args.env_str = 'Equation'
         self.args.mcts_engine = "EndgameMCTS"
-        self.args.data_path = 'data/nguyen'
+        self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
         self.args.max_len_datasets = 10
@@ -59,7 +59,7 @@ class BasicTest(unittest.TestCase):
     def test_equation_ClassicMCTS(self):
         self.args.env_str = 'Equation'
         self.args.mcts_engine = "ClassicMCTS"
-        self.args.data_path = 'data/nguyen'
+        self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
         self.args.max_len_datasets = 10
