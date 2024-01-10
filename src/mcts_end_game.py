@@ -283,7 +283,7 @@ class MCTSEndGame(ClassicMCTS):
                                    (self.times_edge_s_a_was_visited[(state_hash, a)] + 1)
 
                 # but backpropagate value from a_max upwards
-                if a != a_max:
+                if self.Qsa[(state_hash, a_max)] > mct_return:
                     mct_return = self.Qsa[(state_hash, a_max)]
 
             self.times_edge_s_a_was_visited[(state_hash, a_max)] += 1
