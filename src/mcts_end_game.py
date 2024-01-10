@@ -279,9 +279,14 @@ class MCTSEndGame(ClassicMCTS):
             if self.args.risk_seeking:
                 self.Qsa[(state_hash, a)] = max(self.Qsa[(state_hash, a)], mct_return)
             else:
+                # update path for a_select
                 self.Qsa[(state_hash, a)] = (self.times_edge_s_a_was_visited[(state_hash, a)] *
                                              self.Qsa[(state_hash, a)] + mct_return) / \
                                    (self.times_edge_s_a_was_visited[(state_hash, a)] + 1)
+
+                # but backpropagate value from a_max upwards todo validate
+                mct_return = self.Qsa[(state_hash, a_max)]
+
             self.times_edge_s_a_was_visited[(state_hash, a_max)] += 1
         else:
             self.Qsa[(state_hash, a)] = mct_return
