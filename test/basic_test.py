@@ -26,9 +26,9 @@ class BasicTest(unittest.TestCase):
         self.args.seed = 42
         self.args.minimum_reward = 0
 
-    def test_equation_EndgameMCTS(self):
+    def test_equation_MCTSEndgame(self):
         self.args.env_str = 'Equation'
-        self.args.mcts_engine = "EndgameMCTS"
+        self.args.mcts_engine = "MCTSEndgame"
         self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
@@ -41,9 +41,9 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_equation(self.args)
 
-    def test_equation_EndgameMCTS_rollout(self):
+    def test_equation_MCTSEndgame_rollout(self):
         self.args.env_str = 'Equation'
-        self.args.mcts_engine = "EndgameMCTS"
+        self.args.mcts_engine = "MCTSEndgame"
         self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
@@ -71,9 +71,9 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_equation(self.args)
         
-    def test_Chain_v0_EndgameMCTS(self):
+    def test_Chain_v0_MCTSEndgame(self):
         self.args.env_str = 'Chain-v0'
-        self.args.mcts_engine = "EndgameMCTS"
+        self.args.mcts_engine = "MCTSEndgame"
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
@@ -85,9 +85,9 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
 
-    def test_ChainLoop_v0_EndgameMCTS(self):
+    def test_ChainLoop_v0_MCTSEndgame(self):
         self.args.env_str = 'ChainLoop-v0'
-        self.args.mcts_engine = "EndgameMCTS"
+        self.args.mcts_engine = "MCTSEndgame"
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
