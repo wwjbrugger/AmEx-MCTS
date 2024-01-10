@@ -14,12 +14,13 @@ from src.utils.get_grammar import read_grammar_file
 from src.environments.find_equation_game import FindEquationGame
 import random
 
+
 def run_gym(args) -> (float, float):
-    logger = get_log_obj(args=args, name="MCTSEndGame")
+    logger = get_log_obj(args=args, name=args.mcts_engine)
     game = GymGame(args)
     wandb.config.update(game.env.spec.kwargs)
 
-    if args.mcts_engine == 'EndgameMCTS':
+    if args.mcts_engine == 'MCTSEndgame':
         mcts_engine = MCTSEndGame(game=game, args=args)
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
@@ -35,11 +36,9 @@ def run_gym(args) -> (float, float):
     gamma = 1.0
 
     while not state.done:
-        pi, v = mcts_engine.runMCTS(
-            state=state,
-            num_MCTS_sims=args.num_MCTS_sims,
-            temperature=1.
-        )
+        pi, v = mcts_engine.run_mcts(state=state,
+                                     num_mcts_sims=args.num_MCTS_sims,
+                                     temperature=1.)
 
         a = np.argmax(pi).item()
         logger.debug(f"{i}, {a}, {pi}, {v}, {state.observation['obs']}")
@@ -58,13 +57,17 @@ def run_gym(args) -> (float, float):
     game.close(state)
     env.close()
 
+    # Log results
+    logger.debug(f"Return: {undiscounted_return}")
+    logger.debug(f"Discounted Return: {discounted_return}")
+
     return undiscounted_return, discounted_return
 
 
 def run_equation(args) -> (float, float):
     np.random.seed(args.seed)
     random.seed(args.seed)
-    logger = get_log_obj(args=args, name="MCTSEndGame")
+    logger = get_log_obj(args=args, name=args.mcts_engine)
     grammar = read_grammar_file(args=args)
     game = FindEquationGame(
         grammar=grammar,
@@ -72,7 +75,7 @@ def run_equation(args) -> (float, float):
         train_test_or_val='train'
     )
 
-    if args.mcts_engine == 'EndgameMCTS':
+    if args.mcts_engine == 'MCTSEndgame':
         mcts_engine = MCTSEndGame(game=game, args=args)
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
@@ -85,11 +88,9 @@ def run_equation(args) -> (float, float):
     gamma = 1.0
 
     while not state.done:
-        pi, v = mcts_engine.runMCTS(
-            state=state,
-            num_MCTS_sims=args.num_MCTS_sims,
-            temperature=1.
-        )
+        pi, v = mcts_engine.run_mcts(state=state,
+                                     num_mcts_sims=args.num_MCTS_sims,
+                                     temperature=1.)
         a = np.argmax(pi).item()
         next_state, r = game.getNextState(
             state=state,
@@ -102,6 +103,10 @@ def run_equation(args) -> (float, float):
         gamma *= args.gamma
 
         logger.debug(f"{i}, {a}, {pi}, {v}, {next_state.observation['current_tree_representation_str']}")
+
+        # Log results
+        logger.debug(f"Return: {undiscounted_return}")
+        logger.debug(f"Discounted Return: {discounted_return}")
 
     return undiscounted_return, discounted_return
 

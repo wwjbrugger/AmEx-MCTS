@@ -34,7 +34,7 @@ class VisualizationTest(unittest.TestCase):
     # the test for visualization is commented out
     # Installation guide for PxGraphviz:
     #  https://pygraphviz.github.io/documentation/stable/install.html
-    def test_equation_EndgameMCTS(self):
+    def test_equation_MCTSEndgame(self):
         self.args.env_str = 'Equation'
         self.args.mcts_engine = "ClassicMCTS"
         self.args.data_path = 'data/nguyen'
@@ -54,7 +54,7 @@ class VisualizationTest(unittest.TestCase):
             train_test_or_val='train'
         )
 
-        if self.args.mcts_engine == 'EndgameMCTS':
+        if self.args.mcts_engine == 'MCTSEndgame':
             mcts_engine = MCTSEndGame(game=game, args=self.args)
         elif self.args.mcts_engine == 'ClassicMCTS':
             mcts_engine = ClassicMCTS(game=game, args=self.args)
@@ -64,11 +64,9 @@ class VisualizationTest(unittest.TestCase):
         i = 0
 
         while not state.done:
-            pi, v = mcts_engine.runMCTS(
-                state=state,
-                num_MCTS_sims=self.args.num_MCTS_sims,
-                temperature=1.
-            )
+            pi, v = mcts_engine.run_mcts(state=state,
+                                         num_mcts_sims=self.args.num_MCTS_sims,
+                                         temperature=1.)
             a = np.argmax(pi).item()
             next_state, r = game.getNextState(
                 state=state,

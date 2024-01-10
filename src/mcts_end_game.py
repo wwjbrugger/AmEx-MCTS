@@ -35,9 +35,8 @@ class MCTSEndGame(ClassicMCTS):
         self.not_completely_explored_moves_for_s = {}
         self.states = {}
 
-    def runMCTS(self, state: GameState,
-                num_MCTS_sims,
-                temperature: float) -> typing.Tuple[np.ndarray, float]:
+    def run_mcts(self, state: GameState, num_mcts_sims,
+                 temperature: float) -> typing.Tuple[np.ndarray, float]:
         """
         This function performs 'num_MCTS_sims' simulations of MCTS starting
         from the provided root GameState.
@@ -56,7 +55,7 @@ class MCTSEndGame(ClassicMCTS):
 
         :param state: GameState Data structure containing the current state of
         the environment.
-        :param num_MCTS_sims: The number of simulations to perform
+        :param num_mcts_sims: The number of simulations to perform
         :param temperature: float Visit count exponentiation factor. A value of
         0 = Greedy, +infinity = uniformly random.
         :return: tuple (pi, v) The move probabilities of MCTS and the estimated
@@ -71,7 +70,7 @@ class MCTSEndGame(ClassicMCTS):
         # Aggregate root state value over MCTS back-propagated values
         mct_return_list = []
         not_completely_explored = np.any(self.not_completely_explored_moves_for_s[state.hash])
-        for num_sim in range(num_MCTS_sims):
+        for num_sim in range(num_mcts_sims):
             if not_completely_explored:
                 mct_return, not_completely_explored = self._search(
                     state=state
@@ -86,7 +85,7 @@ class MCTSEndGame(ClassicMCTS):
                 s_0,
                 self.times_edge_s_a_was_visited
             )
-            v = (np.max(mct_return_list) * num_MCTS_sims + v_0) / (num_MCTS_sims + 1)
+            v = (np.max(mct_return_list) * num_mcts_sims + v_0) / (num_mcts_sims + 1)
         else:
             # MCTS q-values array for each edge 'a' from root node 's_0'.
             move_probabilities = self.calculate_move_probabilities(s_0,
@@ -117,7 +116,7 @@ class MCTSEndGame(ClassicMCTS):
         s_0 = self.game.getHash(state=state)
         if s_0 in self.states:
             # state was already visited before
-            v_0 = np.float32(0)
+            v_0 = 0
         else:
             self.states[s_0] = state
 
@@ -128,8 +127,7 @@ class MCTSEndGame(ClassicMCTS):
                 self.game.getLegalMoves(state).astype(bool)
 
             self.Ps[s_0] *= self.valid_moves_for_s[s_0]
-            self.Ps[s_0] = self.Ps[s_0] / (np.float32(1e-8) + np.sum(self.Ps[s_0],
-                                                                     dtype=np.float32))
+            self.Ps[s_0] = self.Ps[s_0] / (1e-8 + np.sum(self.Ps[s_0]))
 
             # Sum of visit counts of the edges/ children and legal moves.
             self.times_s_was_visited[s_0] = 0
@@ -213,7 +211,7 @@ class MCTSEndGame(ClassicMCTS):
     def rollout_for_valid_moves(self, a, state_hash,
                                 state, path):
         # explore new part of the tree
-        value = np.float32(0)
+        value = 0
         next_state, reward = self.game.getNextState(
             state=state,
             action=a
@@ -260,9 +258,9 @@ class MCTSEndGame(ClassicMCTS):
                     path=path + (a,)
                 )
                 if not_subtree_completed:
-                    value = np.float32((value_search + value) / 2)
+                    value = (value_search + value) / 2
                 else:
-                    value = np.float32(value_search)
+                    value = value_search
         else:
             # next state is done
             self.not_completely_explored_moves_for_s[next_state_hash] = [False] * self.action_size
@@ -284,8 +282,9 @@ class MCTSEndGame(ClassicMCTS):
                                              self.Qsa[(state_hash, a)] + mct_return) / \
                                    (self.times_edge_s_a_was_visited[(state_hash, a)] + 1)
 
-                # but backpropagate value from a_max upwards todo validate
-                mct_return = self.Qsa[(state_hash, a_max)]
+                # but backpropagate value from a_max upwards
+                if a != a_max:
+                    mct_return = self.Qsa[(state_hash, a_max)]
 
             self.times_edge_s_a_was_visited[(state_hash, a_max)] += 1
         else:
