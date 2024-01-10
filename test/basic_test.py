@@ -8,22 +8,23 @@ from definitions import ROOT_DIR
 
 class BasicTest(unittest.TestCase):
     def setUp(self) -> None:
-        class Namespace():
-            def __init__(self):
-                pass
+        class Namespace:
+            pass
         self.args = Namespace()
 
         self.args.num_sims = 10
         self.args.gamma = 0.99
         self.args.c1 = 1.25
-        self.args.depth_first_search = True
-        self.args.risk_seeking = True
+        self.args.depth_first_search = False
+        self.args.risk_seeking = True  # uses max instead of mean
         self.args.render_mode = 'human'
         self.args.wandb = 'disabled'
         self.args.logging_level = 20
         self.args.prior_source = 'uniform'
         self.args.num_MCTS_sims = 500
         self.args.use_puct = False
+        self.args.seed = 42
+        self.args.minimum_reward = 0
 
     def test_equation_EndgameMCTS(self):
         self.args.env_str = 'Equation'
@@ -84,14 +85,14 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
 
-    def test_CartPole_v1_EndgameMCTS(self):
+    def test_ChainLoop_v0_EndgameMCTS(self):
         self.args.env_str = 'ChainLoop-v0'
         self.args.mcts_engine = "EndgameMCTS"
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
 
-    def test_CartPole_v1_ClassicMCTS(self):
+    def test_ChainLoop_v0_ClassicMCTS(self):
         self.args.env_str = 'ChainLoop-v0'
         self.args.mcts_engine = "ClassicMCTS"
         wandb.init(project="MCTSEndgame", config=self.args,
