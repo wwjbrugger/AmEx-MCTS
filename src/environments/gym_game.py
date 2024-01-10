@@ -29,11 +29,12 @@ class GymGame(Game):
         elif args.env_str == "CliffWalking-v0":
             self.env = CliffWrapper(gym.make(args.env_str))
         else:
-            self.env = gym.make(args.env_str, max_episode_steps=200)
+            self.env = gym.make(args.env_str)
         a_size = self.getActionSize()
         s = [f"S -> S [{1.0 / a_size}]\n"] * a_size  # uniform prior
 
         self.grammar = PCFG.fromstring("".join(s))
+        self.max_path_length = self.env.spec.max_episode_steps
         add_prior(self.grammar, args)
 
     def getInitialState(self) -> GymGameState:

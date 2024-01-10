@@ -11,6 +11,8 @@ from src.equation_classes.rewards import ReMSe, Mse
 from src.equation_classes.Error import NonFiniteError
 from src.equation_classes.MaxList import MaxList
 import re
+
+
 class FindEquationGame(Game):
     def __init__(self, grammar, args, train_test_or_val='train'):
         super().__init__(n_players=1)
@@ -26,19 +28,19 @@ class FindEquationGame(Game):
             train_test_or_val=train_test_or_val
         )
         self.iterator = self.reader.get_datasets()
-        class Namespace():
+
+        class Namespace:
             def __init__(self):
                 pass
         self.action_space = Namespace()
         self.action_space.n = len(self.grammar._productions)
         self.dataset_columns = self.reader.dataset_columns
-
+        self.max_path_length = self.args.max_branching_factor ** self.args.max_depth_of_tree
 
     def getInitialState(self) -> GameState:
         self.max_list = MaxList(self.args)
         batch_data = next(self.iterator)
-        observations = {}
-        observations['data_frame'] = batch_data['data_frame']
+        observations = {'data_frame': batch_data['data_frame']}
         syntax_tree = SyntaxTree(
             args=self.args,
             grammar=self.grammar
@@ -74,7 +76,7 @@ class FindEquationGame(Game):
         next_observation = deepcopy(state.observation)
         next_observation['current_tree_representation_str'] = equation
         done = next_tree.complete or next_tree.max_depth_reached or \
-               next_tree.max_constants_reached
+            next_tree.max_constants_reached
 
         if done:
             next_observation['id_last_node'] = []
@@ -83,7 +85,6 @@ class FindEquationGame(Game):
             next_observation['id_last_node'] = next_tree.nodes_to_expand[0]
             next_observation['last_symbol'] = \
                 next_tree.dict_of_nodes[next_tree.nodes_to_expand[0]].node_symbol
-
 
         next_state = GameState(syntax_tree=next_tree, observation=next_observation, done=done, production_action=action, previous_state=state)
 
@@ -123,11 +124,9 @@ class FindEquationGame(Game):
                 else:
                     raise NonFiniteError
 
-
             except AssertionError:
                 self.logger.debug(f"Equation can not be evaluated"
-                                  f"the equation is: {syntax_tree.rearrange_equation_prefix_notation(new_start_node_id=-1)[1]} \n"
-                                  )
+                                  f"the equation is: {syntax_tree.rearrange_equation_prefix_notation(new_start_node_id=-1)[1]} \n")
                 r = float(self.args.minimum_reward)
             except FloatingPointError:
                 self.logger.debug(f"In the calculation of the reward a FloatingPointError occur "
@@ -136,8 +135,8 @@ class FindEquationGame(Game):
                 r = float(self.args.minimum_reward)
             except RuntimeError as e:
                 self.logger.debug(f"In the calculation of the reward a RuntimeError occur."
-                             f"The error is {e} "
-                             f"The previous state is used")
+                                  f"The error is {e} "
+                                  f"The previous state is used")
                 r = float(self.args.minimum_reward)
             except NonFiniteError as e:
                 r = float(self.args.minimum_reward)
@@ -165,7 +164,9 @@ class FindEquationGame(Game):
 
     def buildObservation(self):
         pass
+
     def getGameEnded(self):
         pass
+
     def getSymmetries(self):
         pass

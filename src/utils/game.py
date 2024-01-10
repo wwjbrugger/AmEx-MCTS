@@ -37,7 +37,6 @@ class GameState:
         return self.hash
 
 
-
 class Game(ABC):
     """
     This class specifies the base Game class. To define your own game, subclass this class and implement the
@@ -61,6 +60,7 @@ class Game(ABC):
         self.n_symmetries = 1
         if self.n_players > 2:
             raise NotImplementedError(f"Environments for more than 2 agents are not yet supported, {n_players} > 2")
+        self.max_path_length = None
 
     @abstractmethod
     def getInitialState(self) -> GameState:
