@@ -203,7 +203,10 @@ class MCTSEndGame(ClassicMCTS):
 
         not_subtree_completed = np.any(self.not_completely_explored_moves_for_s[state_hash])
 
-        if state.previous_state is not None:
+        if not not_subtree_completed and state.previous_state is not None:
+            self.Qsa[(state.previous_state.hash, state.production_action)] = \
+              self.args.gamma * np.max([self.Qsa[(state_hash, action)] for action, valid in enumerate(self.valid_moves_for_s[state_hash]) if valid])
+
             self.not_completely_explored_moves_for_s[state.previous_state.hash][state.production_action] \
                 &= not_subtree_completed
         return mct_return, not_subtree_completed
