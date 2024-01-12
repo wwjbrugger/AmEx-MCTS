@@ -15,6 +15,7 @@ Notes:
 import typing
 import numpy as np
 from src.utils.game import GameState
+from utils.utils import tie_breaking_argmax
 from src.classic_mcts import ClassicMCTS
 
 
@@ -91,7 +92,7 @@ class MCTSEndGame(ClassicMCTS):
             move_probabilities = self.calculate_move_probabilities(s_0,
                                                                    self.Qsa,
                                                                    True)
-            v = self.Qsa[(s_0, np.argmax(move_probabilities))]
+            v = self.Qsa[(s_0, tie_breaking_argmax(move_probabilities))]
 
         return move_probabilities, v
 
@@ -198,8 +199,7 @@ class MCTSEndGame(ClassicMCTS):
         mct_return = self.backup(a=a,
                                  state_hash=state_hash,
                                  value=value,
-                                 a_max=a_max,
-                                 )
+                                 a_max=a_max)
 
         not_subtree_completed = np.any(self.not_completely_explored_moves_for_s[state_hash])
 
@@ -301,15 +301,13 @@ class MCTSEndGame(ClassicMCTS):
             confidence_bounds.append(ucb)
         confidence_bounds = np.asarray(confidence_bounds)
 
-        # todo break ties
-
         # Get masked argmax.
-        a = np.argmax(np.where(self.not_completely_explored_moves_for_s[state_hash],
-                               confidence_bounds,
-                               -np.inf))  # never choose these actions!
+        a = tie_breaking_argmax(np.where(self.not_completely_explored_moves_for_s[state_hash],
+                                confidence_bounds,
+                                -np.inf))  # never choose these actions!
         # Get valid arg_max
-        a_max = np.argmax(np.where(self.valid_moves_for_s[state_hash],
-                                   confidence_bounds,
-                                   -np.inf))  # never choose these actions!
+        a_max = tie_breaking_argmax(np.where(self.valid_moves_for_s[state_hash],
+                                    confidence_bounds,
+                                    -np.inf))  # never choose these actions!
 
         return a, a_max
