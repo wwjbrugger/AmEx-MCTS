@@ -20,7 +20,7 @@ def run():
         'c1': [1.414213562373095],
         'depth_first_search':[False],
         'risk_seeking': [True,False],
-        'mcts_engine': [ 'AmEx_MCTS', 'ClassicMCTS'],
+        'mcts_engine': [ 'AmEx_MCTS'],
         'prior_source': ['uniform'],
         'use_puct': [False],
         'minimum_reward': [0]
