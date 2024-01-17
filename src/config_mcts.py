@@ -13,8 +13,8 @@ def parse_args() -> argparse.Namespace:
                         help='The number of simulations to perform per step')
     parser.add_argument('--gamma', type=float,
                         help='The discount factor', default=0.99)
-    parser.add_argument('--c1', type=float,
-                        help='The UCB exploration coefficient', default=1.25)
+    parser.add_argument('--c1', type=float, default=1.41421356237,
+                        help='The UCB exploration coefficient')
     parser.add_argument('--depth-first-search', type=str2bool,
                         help='Performs a depth first search if true',
                         default=False)
