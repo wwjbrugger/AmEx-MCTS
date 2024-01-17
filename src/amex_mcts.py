@@ -63,7 +63,7 @@ class AmEx_MCTS(ClassicMCTS):
         self.temperature = temperature
 
         # Initialize the root variables needed for MCTS.
-        s_0, v_0 = self.initialize_root(state=state)
+        s_0_hash, v_0 = self.initialize_root(state=state)
 
         # Aggregate root state value over MCTS back-propagated values
         mct_return_list = []
@@ -78,20 +78,36 @@ class AmEx_MCTS(ClassicMCTS):
                 break
 
         if not_completely_explored:
-            # MCTS Visit count array for each edge 'a' from root node 's_0'.
+            # MCTS Visit count array for each edge 'a' from root node 's_0_hash'.
             move_probabilities = self.calculate_move_probabilities(
-                s_0,
+                s_0_hash,
                 self.times_edge_s_a_was_visited
             )
             v = (np.max(mct_return_list) * num_mcts_sims + v_0) / (num_mcts_sims + 1)
         else:
-            # MCTS q-values array for each edge 'a' from root node 's_0'.
-            move_probabilities = self.calculate_move_probabilities(s_0,
+            self.update_full_exploration_to_root_node(state_hash=s_0_hash)
+            # MCTS q-values array for each edge 'a' from root node 's_0_hash'.
+            move_probabilities = self.calculate_move_probabilities(s_0_hash,
                                                                    self.Qsa,
                                                                    True)
-            v = self.Qsa[(s_0, tie_breaking_argmax(move_probabilities))]
+            v = self.Qsa[(s_0_hash, tie_breaking_argmax(move_probabilities))]
 
         return move_probabilities, v
+
+    def update_full_exploration_to_root_node(self, state_hash):
+        """
+        After running the simulation, the root node of the simulation be fully explored.
+         However, its parent node is not informed about this,so we are addressing this issue now.
+        :param state_hash:
+        :return:
+        """
+        if not self.states[state_hash].previous_state is None:
+            state = self.states[state_hash]
+            # check if parent node think the child node is not full explored
+            if self.not_completely_explored_moves_for_s[state.previous_state.hash][state.production_action]:
+                self.not_completely_explored_moves_for_s[state.previous_state.hash][state.production_action] = False
+                if np.any(self.not_completely_explored_moves_for_s[state.previous_state.hash]):
+                    self.update_full_exploration_to_root_node(state_hash=state.previous_state.hash)
 
     def clear_tree(self) -> None:
         """ Clear all statistics stored in the current search tree """
@@ -111,26 +127,26 @@ class AmEx_MCTS(ClassicMCTS):
         :return: tuple (hash, root_value) The hash of the environment state
         and inferred root-value.
         """
-        s_0 = self.game.getHash(state=state)
-        if s_0 in self.states:
+        s_0_hash = self.game.getHash(state=state)
+        if s_0_hash in self.states:
             # state was already visited before
             v_0 = 0
         else:
-            self.states[s_0] = state
+            self.states[s_0_hash] = state
 
-            self.Ps[s_0], v_0 = self.get_prior_and_value(state)
+            self.Ps[s_0_hash], v_0 = self.get_prior_and_value(state)
             # Mask the prior for illegal moves, and re-normalize accordingly.
-            self.valid_moves_for_s[s_0] = self.game.getLegalMoves(state).astype(bool)
-            self.not_completely_explored_moves_for_s[s_0] = \
+            self.valid_moves_for_s[s_0_hash] = self.game.getLegalMoves(state).astype(bool)
+            self.not_completely_explored_moves_for_s[s_0_hash] = \
                 self.game.getLegalMoves(state).astype(bool)
 
-            self.Ps[s_0] *= self.valid_moves_for_s[s_0]
-            self.Ps[s_0] = self.Ps[s_0] / (1e-8 + np.sum(self.Ps[s_0]))
+            self.Ps[s_0_hash] *= self.valid_moves_for_s[s_0_hash]
+            self.Ps[s_0_hash] = self.Ps[s_0_hash] / (1e-8 + np.sum(self.Ps[s_0_hash]))
 
             # Sum of visit counts of the edges/ children and legal moves.
-            self.times_s_was_visited[s_0] = 0
+            self.times_s_was_visited[s_0_hash] = 0
 
-        return s_0, v_0
+        return s_0_hash, v_0
 
     def _search(self, state: GameState,
                 path: typing.Tuple[int, ...] = tuple(), ) -> (float, bool):
@@ -170,7 +186,6 @@ class AmEx_MCTS(ClassicMCTS):
         a, a_max = self.select_action_with_highest_upper_confidence_bound(state_hash)
         # EXPAND and SIMULATE
         if (state_hash, a) not in self.Ssa:
-            # ask neural net what to do next
             value = self.rollout_for_valid_moves(
                 a=a,
                 state_hash=state_hash,

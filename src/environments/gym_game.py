@@ -31,6 +31,7 @@ class GymGame(Game):
         else:
             self.env = gym.make(args.env_str)
         a_size = self.getActionSize()
+        self.env.reset(seed=args.seed)
         s = [f"S -> S [{1.0 / a_size}]\n"] * a_size  # uniform prior
 
         self.grammar = PCFG.fromstring("".join(s))
