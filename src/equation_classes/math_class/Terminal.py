@@ -1,16 +1,16 @@
 import numpy as np
+from src.equation_classes.math_class.AbstractOperator import AbstractOperator
 
-
-class Terminal():
+class Terminal(AbstractOperator):
     def __init__(self, node):
         self.num_child = 0
         self.node = node
         self.invertible = True
 
-    def prefix_notation(self, call_node_id):
+    def prefix_notation(self, call_node_id, kwargs):
         if call_node_id == self.node.node_id:
             return self.node.parent_node.math_class.prefix_notation(
-                call_node_id=self.node.node_id)
+                call_node_id=self.node.node_id, kwargs=kwargs)
         else:
             return f"{self.node.node_symbol}"
 

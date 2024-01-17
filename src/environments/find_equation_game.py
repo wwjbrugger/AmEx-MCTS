@@ -117,10 +117,6 @@ class FindEquationGame(Game):
                         state=state,
                         key=r
                     )
-                    if r < 0.98:
-                        return 0
-                    else:
-                        return r
                 else:
                     raise NonFiniteError
 

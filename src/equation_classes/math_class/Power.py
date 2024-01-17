@@ -1,36 +1,38 @@
-from src.equation_classes.node import Node
+from src.equation_classes.math_class.AbstractOperator import AbstractOperator
 import numpy as np
 
 
-class Power():
+class Power(AbstractOperator):
     def __init__(self, node):
         self.num_child = 2
         self.node = node
         self.invertible = True
         self.neutral_element = 1
 
-    def prefix_notation(self, call_node_id):
+    def prefix_notation(self, call_node_id, kwargs):
         if call_node_id == self.node.node_id:
             p_str = self.node.parent_node.math_class.prefix_notation(
-                call_node_id=self.node.node_id)
+                call_node_id=self.node.node_id,
+                kwargs=kwargs)
             return p_str
         elif call_node_id == self.node.parent_node.node_id or call_node_id is None:
-            c_0_str = self.node.list_children[0].math_class.prefix_notation(self.node.node_id)
-            c_1_str = self.node.list_children[1].math_class.prefix_notation(self.node.node_id)
-            return f' ** {c_0_str}' \
-                   f' {c_1_str} '
+            c_0_str = (self.node.list_children[0].math_class
+                       .prefix_notation(self.node.node_id, kwargs))
+            c_1_str = (self.node.list_children[1].math_class
+                       .prefix_notation(self.node.node_id, kwargs))
+            return f' ** {c_0_str} {c_1_str} '
         elif call_node_id == self.node.list_children[0].node_id:
             p_str = self.node.parent_node.math_class.prefix_notation(
-                call_node_id=self.node.node_id)
-            c_1_str = self.node.list_children[1].math_class.prefix_notation(self.node.node_id)
-            return f' / log {p_str}' \
-                   f' log {c_1_str} '
+                self.node.node_id, kwargs)
+            c_1_str = (self.node.list_children[1].math_class
+                       .prefix_notation(self.node.node_id, kwargs))
+            return f' / log {p_str} log {c_1_str} '
         elif call_node_id == self.node.list_children[1].node_id:
             p_str = self.node.parent_node.math_class.prefix_notation(
-                call_node_id=self.node.node_id)
-            c_0_str = self.node.list_children[0].math_class.prefix_notation(self.node.node_id)
-            return f' ** / 1 {c_0_str}' \
-                   f' {p_str} '
+                self.node.node_id, kwargs)
+            c_0_str = (self.node.list_children[0]
+                       .math_class.prefix_notation(self.node.node_id, kwargs))
+            return f' ** / 1 {c_0_str} {p_str} '
 
     def infix_notation(self, call_node_id, kwargs):
         if call_node_id == self.node.node_id:

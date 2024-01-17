@@ -8,14 +8,12 @@ The MCTS returns both the estimated root-value and action
 probabilities. The MCTS also discounts backed up rewards given that gamma < 1.
 
 Notes:
- -  Adapted from https://github.com/suragnair/alpha-zero-general
- -  Base implementation done.
- -  Documentation 15/11/2020
+ -  Adapted from https://github.com/suragnair/alpha-zero-general and https://github.com/kaesve/muzero/tree/master
 """
 import copy
 import typing
 import numpy as np
-from src.utils.selfplay_utils import GameState
+from src.utils.game import GameState
 from src.utils.logging import get_log_obj
 from src.utils.utils import tie_breaking_argmax
 import random
@@ -29,7 +27,7 @@ class ClassicMCTS:
 
     def __init__(self, game, args) -> None:
         """
-        Initialize all requisite variables for performing MCTS for AlphaZero.
+        Initialize all requisite variables for performing MCTS.
         :param game: Game Implementation of Game class for environment logic.
         :param args: Data structure containing parameters for the tree search.
         """
@@ -37,21 +35,20 @@ class ClassicMCTS:
         self.args = args
 
         # Static helper variables.
-        self.single_player = game.n_players == 1
         self.action_size = game.getActionSize()
 
-        self.Qsa = {}  # stores Q values for s, a (as defined in the paper)
+        self.Qsa = {}  # stores Q values for s, a
         self.Ssa = {}  # stores state transitions for s, a
         self.Rsa = {}  # stores R values for s, a
         self.times_edge_s_a_was_visited = {}  # stores visit counts of edges
         self.times_s_was_visited = {}  # stores #times board s was visited
         self.Ps = {}  # stores initial policy
         self.valid_moves_for_s = {}  # stores game.getValidMoves for board s
-        self.visits_done_state = 0
-        self.visits_roll_out = 0
+        self.visits_done_state = 0 # Count visits of done states.
+        self.visits_roll_out = 0 # Count how often a new state is explored
         self.logger = get_log_obj(args=args)
 
-        self.temperature = None
+        self.temperature = None # exponentiation factor
         self.states_explored_till_perfect_fit = -1
 
     def run_mcts(self, state: GameState, num_mcts_sims,
@@ -67,8 +64,7 @@ class ClassicMCTS:
         This may influence memory usage.
 
         Our estimation of the root-value of the MCTS tree search is based on a
-        sample average of each backed-up MCTS value. This means that this
-        estimate represents an on-policy estimate V^pi.
+        sample average of each backed-up MCTS value.
 
         Illegal moves are masked before computing the action probabilities.
 
@@ -125,7 +121,6 @@ class ClassicMCTS:
                     move_probabilities[max_index] = 1.0
                     return move_probabilities
             # else:  # counts
-            # pass
             move_probabilities[possible_actions] = action_utilities
             try:
                 move_probabilities = np.divide(move_probabilities, np.sum(move_probabilities))

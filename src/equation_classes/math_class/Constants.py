@@ -1,7 +1,8 @@
 import numpy as np
+from src.equation_classes.math_class.AbstractOperator import AbstractOperator
 
 
-class Constants():
+class Constants(AbstractOperator):
     def __init__(self, node):
         self.num_child = 0
         self.node = node

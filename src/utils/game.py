@@ -1,9 +1,6 @@
 """
 Define the abstract Game class for providing a structure/ interface for agent environments.
 
-Notes:
- - Base implementation done.
- - Documentation 15/11/2020
 """
 from abc import ABC, abstractmethod
 import typing
@@ -20,17 +17,16 @@ class GameState:
     hash_previous_state: str
     hash : str
 
-    def __init__(self, syntax_tree, observation, done=False, hash=None, production_action=None, residual_calculated=False, previous_state=None):
+    def __init__(self, syntax_tree, observation, done=False, hash=None,
+                 production_action=None, residual_calculated=False,
+                 previous_state=None):
         self.syntax_tree = syntax_tree
         self.observation = observation
         self.done = done
         self.y_calc = None
-        #self.hash_previous_state  = hash_previous_state
         self.hash = hash
         self.residual_calculated = residual_calculated
-        # action taken to produce this state
         self.production_action = production_action
-        #self.id_parent = id_parent
         self.previous_state = previous_state
 
     def __str__(self):
@@ -40,14 +36,7 @@ class GameState:
 class Game(ABC):
     """
     This class specifies the base Game class. To define your own game, subclass this class and implement the
-    functions below. This works when the game is either single-player or two-player/ adversarial. Note that
-    the implementations of this class have to be stateless, all state information can be stored in GameState objects.
-
-    Optionally, one can also subclass Gym.Env for single-player games, and make use of the existing logic in
-    Games/gym/GymGame.py or Games/atari/AtariGame.py.
-
-    See Games/gym/GymGame.py for an example implementation of a single-player game.
-    See Games/hex/HexGame.py for an example implementation of a two-player game.
+    functions below.
     """
 
     def __init__(self, n_players: int = 1) -> None:

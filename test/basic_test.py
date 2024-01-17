@@ -11,10 +11,8 @@ class BasicTest(unittest.TestCase):
         class Namespace:
             pass
         self.args = Namespace()
-
-        self.args.num_sims = 10
         self.args.gamma = 0.99
-        self.args.c1 = 1.25
+        self.args.c1 = 1.41421356237
         self.args.depth_first_search = False
         self.args.risk_seeking = True  # uses max instead of mean
         self.args.render_mode = 'human'
@@ -26,9 +24,9 @@ class BasicTest(unittest.TestCase):
         self.args.seed = 42
         self.args.minimum_reward = 0
 
-    def test_equation_MCTSEndgame(self):
+    def test_equation_AmEx_MCTS(self):
         self.args.env_str = 'Equation'
-        self.args.mcts_engine = "MCTSEndgame"
+        self.args.mcts_engine = "AmEx_MCTS"
         self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
@@ -36,14 +34,14 @@ class BasicTest(unittest.TestCase):
         self.args.max_depth_of_tree = 6
         self.args.max_branching_factor = 2
         self.args.minimum_reward = -1
-        self.args.maximum_reward = 9.0
+        self.args.maximum_reward = 1.0
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_equation(self.args)
 
-    def test_equation_MCTSEndgame_rollout(self):
+    def test_equation_AmEx_MCTS_rollout(self):
         self.args.env_str = 'Equation'
-        self.args.mcts_engine = "MCTSEndgame"
+        self.args.mcts_engine = "AmEx_MCTS"
         self.args.data_path = 'data/nguyen_11'
         self.args.prior_source = 'grammar'
         self.args.max_elements_in_list = 30
@@ -71,9 +69,9 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_equation(self.args)
         
-    def test_Chain_v0_MCTSEndgame(self):
+    def test_Chain_v0_AmEx_MCTS(self):
         self.args.env_str = 'Chain-v0'
-        self.args.mcts_engine = "MCTSEndgame"
+        self.args.mcts_engine = "AmEx_MCTS"
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
@@ -85,9 +83,9 @@ class BasicTest(unittest.TestCase):
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)
 
-    def test_ChainLoop_v0_MCTSEndgame(self):
+    def test_ChainLoop_v0_AmEx_MCTS(self):
         self.args.env_str = 'ChainLoop-v0'
-        self.args.mcts_engine = "MCTSEndgame"
+        self.args.mcts_engine = "AmEx_MCTS"
         wandb.init(project="MCTSEndgame", config=self.args,
                    mode=self.args.wandb)
         result, disc = run_gym(self.args)

@@ -8,18 +8,16 @@ The MCTS returns both the estimated root-value and action
 probabilities. The MCTS also discounts backed up rewards given that gamma < 1.
 
 Notes:
- -  Adapted from https://github.com/suragnair/alpha-zero-general
- -  Base implementation done.
- -  Documentation 15/11/2020
+ -  Adapted from https://github.com/suragnair/alpha-zero-general and https://github.com/kaesve/muzero/tree/master
 """
 import typing
 import numpy as np
 from src.utils.game import GameState
-from utils.utils import tie_breaking_argmax
+from src.utils.utils import tie_breaking_argmax
 from src.classic_mcts import ClassicMCTS
 
 
-class MCTSEndGame(ClassicMCTS):
+class AmEx_MCTS(ClassicMCTS):
     """
     This class handles the MCTS tree while having access to the environment
     logic.
@@ -49,8 +47,7 @@ class MCTSEndGame(ClassicMCTS):
         This may influence memory usage.
 
         Our estimation of the root-value of the MCTS tree search is based on a
-        sample average of each backed-up MCTS value. This means that this
-        estimate represents an on-policy estimate V^pi.
+        sample average of each backed-up MCTS value.
 
         Illegal moves are masked before computing the action probabilities.
 

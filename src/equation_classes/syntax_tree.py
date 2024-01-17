@@ -252,7 +252,10 @@ class SyntaxTree():
         """
         new_start_node = self.dict_of_nodes[new_start_node_id]
         if new_start_node.invertible:
-            equation = new_start_node.math_class.prefix_notation(new_start_node_id)
+            equation = new_start_node.math_class.prefix_notation(
+                call_node_id=new_start_node_id,
+                kwargs={}
+            )
             return new_start_node.node_symbol, equation
         else:
             raise AssertionError(f'Node {new_start_node_id} is not invertible')

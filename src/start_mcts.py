@@ -7,7 +7,7 @@ import numpy as np
 from src.utils.logging import get_log_obj
 
 from src.environments.gym_game import GymGame
-from src.mcts_end_game import MCTSEndGame
+from src.amex_mcts import AmEx_MCTS
 from src.classic_mcts import ClassicMCTS
 from src.config_mcts import parse_args
 from src.utils.get_grammar import read_grammar_file
@@ -16,12 +16,19 @@ import random
 
 
 def run_gym(args) -> (float, float):
+    """
+    Method to run MCTS approaches for gym environments
+    :param args:
+    :return: undiscounted_return and  discounted_return of the MCTS
+    """
+    np.random.seed(args.seed)
+    random.seed(args.seed)
     logger = get_log_obj(args=args, name=args.mcts_engine)
     game = GymGame(args)
     wandb.config.update(game.env.spec.kwargs)
 
-    if args.mcts_engine == 'MCTSEndgame':
-        mcts_engine = MCTSEndGame(game=game, args=args)
+    if args.mcts_engine == 'AmEx_MCTS':
+        mcts_engine = AmEx_MCTS(game=game, args=args)
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
     else:
@@ -38,7 +45,7 @@ def run_gym(args) -> (float, float):
     while not state.done:
         pi, v = mcts_engine.run_mcts(state=state,
                                      num_mcts_sims=args.num_MCTS_sims,
-                                     temperature=1.)
+                                     temperature=0)
 
         a = np.argmax(pi).item()
         logger.debug(f"{i}, {a}, {pi}, {v}, {state.observation['obs']}")
@@ -65,6 +72,11 @@ def run_gym(args) -> (float, float):
 
 
 def run_equation(args) -> (float, float):
+    """
+    Method to run MCTS approaches for equation discovery
+    :param args:
+    :return:
+    """
     np.random.seed(args.seed)
     random.seed(args.seed)
     logger = get_log_obj(args=args, name=args.mcts_engine)
@@ -75,8 +87,8 @@ def run_equation(args) -> (float, float):
         train_test_or_val='train'
     )
 
-    if args.mcts_engine == 'MCTSEndgame':
-        mcts_engine = MCTSEndGame(game=game, args=args)
+    if args.mcts_engine == 'AmEx_MCTS':
+        mcts_engine = AmEx_MCTS(game=game, args=args)
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
     else:

@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description='MCTSEndgame Experiments')
+    parser = argparse.ArgumentParser(description='AmEx_MCTS Experiments')
     parser.add_argument('--env-str', type=str,
                         help='The gym environment string', required=True)
     parser.add_argument("--seed", type=int)
@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--logging-level', type=int, default=40,
                         help='The logging level')
     parser.add_argument("--mcts-engine", type=str, required=True,
-                        choices=['ClassicMCTS', 'MCTSEndgame'],
+                        choices=['ClassicMCTS', 'AmEx_MCTS'],
                         help="Which Engine should be used in MCTS?")
     parser.add_argument('--prior-source', type=str, required=True,
                         choices=['uniform', 'grammar'])
