@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--max-branching-factor', type=float,
                         help='The maximal number of children in the equation'
                              'tree')
-    parser.add_argument('--minimum-reward', type=float)
+    parser.add_argument('--minimum-reward', type=float, required=True)
     parser.add_argument('--maximum-reward', type=float)
 
     return parser.parse_args()

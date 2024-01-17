@@ -23,6 +23,7 @@ def run():
         'mcts_engine': [ 'AmEx_MCTS', 'ClassicMCTS'],
         'prior_source': ['uniform'],
         'use_puct': [False],
+        'minimum_reward': [0]
     }
 
     cartesian_product = itertools.product(
@@ -70,7 +71,9 @@ def write_script(file1, settings_one_script):
         file1.writelines(
             f"--prior-source {settings_one_script['prior_source']}  ")
         file1.writelines(
-            f"--use-puct {settings_one_script['use_puct']} \n ")
+            f"--use-puct {settings_one_script['use_puct']}   ")
+        file1.writelines(
+            f"--minimum-reward {settings_one_script['minimum_reward']} \n ")
 
 
 if __name__ == '__main__':
