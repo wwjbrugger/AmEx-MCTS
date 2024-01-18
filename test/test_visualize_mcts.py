@@ -39,7 +39,7 @@ class VisualizationTest(unittest.TestCase):
     def test_equation_AmEx_MCTS(self):
         self.args.env_str = 'Equation'
         self.args.mcts_engine = "AmEx_MCTS" #"ClassicMCTS" AmEx_MCTS
-        self.args.data_path = 'data/nguyen_11'
+        self.args.data_path = 'data/nguyen_8'
         self.args.max_elements_in_list = 30
         self.args.max_len_datasets = 10
         self.args.max_depth_of_tree = 3
