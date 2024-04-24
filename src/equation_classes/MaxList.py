@@ -19,3 +19,6 @@ class MaxList():
         index = bisect_left(a=self.max_list_keys, x=key)
         self.max_list_keys.insert(index, key)
         self.max_list_state.insert(index, state)
+
+    def __str__(self):
+        return self.max_list_keys.__str__()
