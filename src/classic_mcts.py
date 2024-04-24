@@ -350,7 +350,7 @@ class ClassicMCTS:
         else:
             # Standard UCT/UCB1 formula
             if times_s_a_visited == 0:
-                return np.inf
+                return 1e8
 
             if self.times_s_was_visited[state_hash] == 0:
                 denominator = 1.0
@@ -372,6 +372,7 @@ class ClassicMCTS:
             done = (term or trunc)
             ret += gamma * r
             gamma *= self.args.gamma
+        env.close()
         return ret
 
     def rollout_equation(self, state):
@@ -389,3 +390,6 @@ class ClassicMCTS:
             ret += gamma * r
             gamma *= self.args.gamma
         return ret
+
+    def __del__(self):
+        self.clear_tree()
