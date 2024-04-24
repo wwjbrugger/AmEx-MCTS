@@ -362,7 +362,7 @@ class ClassicMCTS:
         return q_value + exploration
     
     def rollout_gym(self, state):
-        env = copy.deepcopy(state.env)
+        env = self.game.env.create_env()
         done = state.done
         ret = 0.0
         gamma = 1.0

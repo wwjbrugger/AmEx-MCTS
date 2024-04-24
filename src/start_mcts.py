@@ -37,8 +37,6 @@ def run_gym(args) -> (float, float):
     else:
         raise AssertionError(f"args.engine: {args.engine} not defined")
     state = game.getInitialState()
-    env = copy.deepcopy(state.env)
-    env.unwrapped.render_mode = args.render_mode
 
     i = 0
     undiscounted_return = 0
@@ -57,7 +55,6 @@ def run_gym(args) -> (float, float):
             state=state,
             action=a,
         )
-        env.step(a)
         state = next_state
         i += 1
         discounted_return += gamma * r
@@ -65,14 +62,14 @@ def run_gym(args) -> (float, float):
         gamma *= args.gamma
     end_time = time.time()
     wandb.log({
-        "max_list_actions": str(env.max_list.max_list_state[-1]),
-        "max_list_reward": env.max_list.max_list_keys[-1][0],
+        "max_list_actions": str(state.env.max_list.max_list_state[-1]),
+        "max_list_reward": state.env.max_list.max_list_keys[-1][0],
         "mcts_actions: ": next_state.hash,
         "run_time": end_time - start_time
     })
 
     # Cleanup environment and GameHistory
-    env.close()
+    state.env.close()
 
     # Log results
     logger.debug(f"Return: {undiscounted_return}")

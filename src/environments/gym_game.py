@@ -65,7 +65,7 @@ class GymGame(Game):
 
 
     def getInitialState(self) -> GymGameState:
-        env = copy.deepcopy(self.env)
+        env = self.env
         obs, _ = env.reset()
         return GymGameState(env, {"last_symbol": "S", "obs": obs})
 
@@ -77,7 +77,7 @@ class GymGame(Game):
 
     def getNextState(self, state: GymGameState, action: int, **kwargs) -> \
             typing.Tuple[GameState, float]:
-        env = copy.deepcopy(state.env)
+        env = state.env
         obs, reward, terminated, truncated, __ = env.step(action)
         s = GymGameState(env, {"last_symbol": "S", "obs": obs},
                          production_action=action,
@@ -197,19 +197,33 @@ class CompilerGymWrapper(CompilerEnvWrapper):
         return self.selected_actions, reward[-1], done, trunc, info
 
     def multistep(self, actions: Iterable[ActionType], **kwargs):
+        env = self.create_env()
         actions = list(actions)
         assert (
                 self._elapsed_steps is not None
         ), "Cannot call env.step() before calling reset()"
-        observation, reward, done, info = self.env.multistep(actions, **kwargs)
+        observation, reward, done, info = env.multistep(actions, **kwargs)
         self._elapsed_steps += len(actions)
         if self._elapsed_steps >= self._max_episode_steps:
             info["TimeLimit.truncated"] = not done
             done = True
 
-        #self.env.close()
+        env.close()
         return observation, reward, done, info
 
+    def create_env(self):
+        env = CompilerGymWrapper(
+            compiler_gym.make(  # creates a new environment (same as gym.make)
+                "llvm-v0",  # selects the compiler to use
+                benchmark=self.args.env_str,  # selects the program to compile
+                observation_space="Autophase",  # selects the observation space
+                reward_space="IrInstructionCountOz",  # selects the optimization target
+            ),
+            max_episode_steps=self.args.max_episode_steps,
+            args=self.args
+        )
+        env.reset(seed=self.args.seed)
+        return env
     def fork(self) -> "TimeLimit":
         """Fork the wrapped environment.
 
