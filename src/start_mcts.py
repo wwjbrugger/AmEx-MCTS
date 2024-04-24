@@ -1,3 +1,5 @@
+import shutil
+
 import wandb
 import copy
 
@@ -13,7 +15,8 @@ from src.config_mcts import parse_args
 from src.utils.get_grammar import read_grammar_file
 from src.environments.find_equation_game import FindEquationGame
 import random
-
+import time
+import os
 
 def run_gym(args) -> (float, float):
     """
@@ -41,6 +44,7 @@ def run_gym(args) -> (float, float):
     undiscounted_return = 0
     discounted_return = 0
     gamma = 1.0
+    start_time = time.time()
 
     while not state.done:
         pi, v = mcts_engine.run_mcts(state=state,
@@ -59,9 +63,15 @@ def run_gym(args) -> (float, float):
         discounted_return += gamma * r
         undiscounted_return += r
         gamma *= args.gamma
+    end_time = time.time()
+    wandb.log({
+        "max_list_actions": str(env.max_list.max_list_state[-1]),
+        "max_list_reward": env.max_list.max_list_keys[-1][0],
+        "mcts_actions: ": next_state.hash,
+        "run_time": end_time - start_time
+    })
 
     # Cleanup environment and GameHistory
-    game.close(state)
     env.close()
 
     # Log results
