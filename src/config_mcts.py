@@ -56,6 +56,6 @@ def parse_args() -> argparse.Namespace:
                              'tree')
     parser.add_argument('--minimum-reward', type=float, required=True)
     parser.add_argument('--maximum-reward', type=float)
-    parser.add_argument('--max_episode_steps', type=int, default= 10)
+    parser.add_argument('--max_episode_steps', type=int, default=None)
 
     return parser.parse_args()

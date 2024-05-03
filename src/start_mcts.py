@@ -59,7 +59,6 @@ def run_gym(args) -> (float, float):
         discounted_return += gamma * r
         undiscounted_return += r
         gamma *= args.gamma
-        print(a)
     end_time = time.time()
     wandb.log({
         "mcts_actions: ": next_state.hash,

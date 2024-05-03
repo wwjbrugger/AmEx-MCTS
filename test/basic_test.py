@@ -23,6 +23,7 @@ class BasicTest(unittest.TestCase):
         self.args.use_puct = False
         self.args.seed = 42
         self.args.minimum_reward = 0
+        self.args.max_episode_steps = 10
 
     def test_equation_AmEx_MCTS(self):
         self.args.env_str = 'Equation'
