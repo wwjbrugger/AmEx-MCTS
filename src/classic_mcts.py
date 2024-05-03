@@ -372,7 +372,6 @@ class ClassicMCTS:
             done = (term or trunc)
             ret += gamma * r
             gamma *= self.args.gamma
-        env.close()
         return ret
 
     def rollout_equation(self, state):

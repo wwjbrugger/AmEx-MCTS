@@ -33,6 +33,9 @@ def parse_args() -> argparse.Namespace:
                         choices=['uniform', 'grammar'])
     parser.add_argument('--use-puct', type=str2bool, required=True,
                         help='Uses the PUCT formula when true, UCB1 otherwise')
+    parser.add_argument('--max_elements_in_best_list', type=int,
+                        default=10,
+                        help='How many of the best results should be saved?')
     
     #  parameter only needed for gym
     parser.add_argument('--render-mode', type=str,
@@ -42,8 +45,6 @@ def parse_args() -> argparse.Namespace:
     # parameter only needed for equation discovery
     parser.add_argument("--data-path", type=Path,
                         help="path to preprocessed dataset", required=False)
-    parser.add_argument('--max-elements-in-list', type=int,
-                        help='How many of the best results should be saved?')
     parser.add_argument(
         "--max-len-datasets", type=int,
         help="Number of samples from dataset which is the input into NN"
@@ -55,5 +56,6 @@ def parse_args() -> argparse.Namespace:
                              'tree')
     parser.add_argument('--minimum-reward', type=float, required=True)
     parser.add_argument('--maximum-reward', type=float)
+    parser.add_argument('--max_episode_steps', type=int, default= 10)
 
     return parser.parse_args()
