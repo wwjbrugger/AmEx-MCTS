@@ -12,7 +12,8 @@ from src.equation_classes.MaxList import MaxList
 import math
 
 try:
-    from compiler_gym.spaces import Commandline, CommandlineFlag  # noqa
+    import compiler_gym  # noqa: F401
+    from compiler_gym.spaces import Commandline, CommandlineFlag   # noqa
 except ImportError:
     warnings.warn(message="CompilerGym not found. Proceeding without it.")
 
@@ -87,8 +88,8 @@ def make_env(env_str: str, max_episode_steps):
     elif env_str == "CliffWalking-v0":
         return CliffWrapper(gym.make(env_str,
                                      max_episode_steps=max_episode_steps))
-    elif env_str.startswith("cbench1"):
-        CompilerGymWrapper.env = gym.make(
+    elif env_str.startswith("cbench"):
+        CompilerGymWrapper.env = compiler_gym.make(
             "llvm-v0",  # compiler to use
             benchmark=env_str,  # program to compile
             observation_space="Autophase",  # observation space
@@ -152,7 +153,7 @@ class CompilerGymWrapper:
         self.observation_space_spec = env.observation_space_spec
         self.spec = env.spec
 
-    def reset(self, seed):  # noqa: F841
+    def reset(self, seed=None):  # noqa: F841
         self._elapsed_steps = 0
         self.selected_actions = []
         return self.selected_actions, {}
