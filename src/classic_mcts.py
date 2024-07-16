@@ -25,12 +25,13 @@ class ClassicMCTS:
     logic.
     """
 
-    def __init__(self, game, args) -> None:
+    def __init__(self, game, args, rule_predictor=None) -> None:
         """
         Initialize all requisite variables for performing MCTS.
         :param game: Game Implementation of Game class for environment logic.
         :param args: Data structure containing parameters for the tree search.
         """
+        self.rule_predictor = rule_predictor
         self.game = game
         self.args = args
 
@@ -173,13 +174,16 @@ class ClassicMCTS:
     def get_prior_and_value(self, state):
         if self.args.prior_source == 'grammar':
             prior = self.game.grammar.prior_dict[state.observation['last_symbol']]
-        else:  # elif self.args.prior_source == 'uniform':
+        elif self.args.prior_source == 'neural_net':
+            prior, value = self.rule_predictor.numpy(state.observation)
+        else:  # elif self.p_args.prior_source == 'uniform':
             prior = self.game.grammar.prior_dict[state.observation['last_symbol']]
 
-        if self.args.env_str == "Equation":
-            value = self.rollout_equation(state)
-        else:
-            value = self.rollout_gym(state)
+        if self.args.prior_source != 'neural_net':
+            if self.args.env_str == "Equation":
+                value = self.rollout_equation(state)
+            else:
+                value = self.rollout_gym(state)
 
         return prior, value
 

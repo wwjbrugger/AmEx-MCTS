@@ -33,7 +33,7 @@ def run_gym(args) -> (float, float):
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
     else:
-        raise AssertionError(f"args.engine: {args.engine} not defined")
+        raise AssertionError(f"p_args.engine: {args.engine} not defined")
     state = game.getInitialState()
 
     i = 0
@@ -45,7 +45,7 @@ def run_gym(args) -> (float, float):
 
     while not state.done:
         pi, v = mcts_engine.run_mcts(state=state,
-                                     num_mcts_sims=args.num_MCTS_sims,
+                                     num_mcts_sims=args.num_mcts_sims,
                                      temperature=0)
 
         a = np.argmax(pi).item()
@@ -96,7 +96,7 @@ def run_equation(args) -> (float, float):
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
     else:
-        raise AssertionError(f"args.engine: {args.engine} not defined")
+        raise AssertionError(f"p_args.engine: {args.engine} not defined")
     state = game.getInitialState()
     i = 0
     undiscounted_return = 0
@@ -105,7 +105,7 @@ def run_equation(args) -> (float, float):
 
     while not state.done:
         pi, v = mcts_engine.run_mcts(state=state,
-                                     num_mcts_sims=args.num_MCTS_sims,
+                                     num_mcts_sims=args.num_mcts_sims,
                                      temperature=1.)
         a = np.argmax(pi).item()
         next_state, r = game.getNextState(

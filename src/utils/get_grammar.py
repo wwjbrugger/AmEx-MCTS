@@ -27,6 +27,11 @@ def add_prior(grammar, args):
                 non_terminal=non_terminal,
                 productions=productions
             )
+        elif args.prior_source == 'neural_net':
+            non_terminal_prior = get_uniform_prior(
+                non_terminal=non_terminal,
+                productions=productions
+            )
         else:
             raise RuntimeError(f"Prior '{args.prior_source}' not supported.")
         prior_dict[str(non_terminal)] = non_terminal_prior

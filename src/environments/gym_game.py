@@ -65,7 +65,10 @@ class GymGame(Game):
         return s, reward
 
     def getLegalMoves(self, state: GameState) -> np.ndarray:
-        return np.ones(self.env.action_space.n)  # noqa
+        if not state.done:
+            return np.ones(self.env.action_space.n)  # noqa
+        else:
+            return np.zeros(self.env.action_space.n)  # noqa
 
     def getGameEnded(self, state: GameState, **kwargs) -> typing.Union[float,
                                                                        int]:
@@ -207,3 +210,7 @@ class CompilerGymWrapper:
             done = True
 
         return observation, reward, done, info
+
+    @staticmethod
+    def close():
+        CompilerGymWrapper.env.close()

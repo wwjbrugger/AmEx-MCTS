@@ -13,7 +13,7 @@ class Constants(AbstractOperator):
             'value': None
         }
         self.node.tree.num_constants_in_complete_tree += 1
-        if self.node.tree.num_constants_in_complete_tree > self.node.tree.args.max_constants_in_tree:
+        if self.node.tree.num_constants_in_complete_tree > self.node.tree.p_args.max_constants_in_tree:
             self.node.tree.max_constants_reached = True
 
     def prefix_notation(self, call_node_id):

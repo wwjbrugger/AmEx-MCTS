@@ -23,14 +23,14 @@ class AmEx_MCTS(ClassicMCTS):
     logic.
     """
 
-    def __init__(self, game, args) -> None:
+    def __init__(self, game, args, **kwargs) -> None:
         """
         Initialize all requisite variables for performing MCTS for AlphaZero.
 
         :param game: Game Implementation of Game class for environment logic.
         :param args: Data structure containing parameters for the tree search.
         """
-        super().__init__(game=game, args=args)
+        super().__init__(game=game, args=args, **kwargs)
         self.not_completely_explored_moves_for_s = {}
         self.states = {}
 
@@ -133,6 +133,8 @@ class AmEx_MCTS(ClassicMCTS):
             v_0 = 0
         else:
             self.states[s_0_hash] = state
+            state.previous_state = None
+            state.production_action = None
 
             self.Ps[s_0_hash], v_0 = self.get_prior_and_value(state)
             # Mask the prior for illegal moves, and re-normalize accordingly.
@@ -203,8 +205,8 @@ class AmEx_MCTS(ClassicMCTS):
 
         else:  # is in Ssa and done
             raise RuntimeError(f"State is in Ssa and done."
-                               f"This should not happen!"
-                               f"State hash: {state_hash}, action: {a}"
+                               f"This should not happen! "
+                               f"State hash: {state_hash}, action: {a} "
                                f"Ssa entry {self.Ssa[(state_hash, a)].hash}")
 
         # BACKUP
@@ -326,7 +328,7 @@ class AmEx_MCTS(ClassicMCTS):
                                     -np.inf))  # never choose these actions!
 
         # for the unlikely event that a and a_max should be the same,
-        # but because of the tie_breaking_argmax are not we have to ckeck if
+        # but because of the tie_breaking_argmax are not we have to check if
         # a_max really already exist
         if not (state_hash, a_max) in self.Qsa:
             a = a_max

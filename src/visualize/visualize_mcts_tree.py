@@ -18,13 +18,13 @@ def visualize_mcts(mcts):
 
 
     fig = create_figure(G, edge_color, labels, max_visits_edge, node_sizes,
-                        state,node_color, args = mcts.args, symbols=symbols)
+                        state, node_color, args = mcts.p_args, symbols=symbols)
     plt.tight_layout()
-    fig.savefig(fname = ROOT_DIR / 'plots' / f"{mcts.args.mcts_engine}_{mcts.args.num_MCTS_sims}{'_labels' if mcts.args.with_labels else ''}.svg",
+    fig.savefig(fname = ROOT_DIR / 'plots' / f"{mcts.p_args.mcts_engine}_{mcts.p_args.num_MCTS_sims}{'_labels' if mcts.p_args.with_labels else ''}.svg",
                 transparent=None, dpi='figure', format=None,
-        metadata=None, bbox_inches=None, pad_inches=0.1,
-        facecolor='auto', edgecolor='auto', backend=None,
-       )
+                metadata=None, bbox_inches=None, pad_inches=0.1,
+                facecolor='auto', edgecolor='auto', backend=None,
+                )
 
 def add_edges_to_graph(G, max_visits_edge, mcts):
     labels = {}
@@ -150,7 +150,7 @@ def create_figure(G, edge_color, labels, max_visits_edge, node_sizes,
     #                  alpha=0.5,
     #                  node_color=node_color,
     #                  node_shape=symbols,
-    #                  with_labels=True if args.with_labels else False,
+    #                  with_labels=True if p_args.with_labels else False,
     #                  arrows=True,
     #                  font_size=20,
     #                  edge_color=edge_color,
