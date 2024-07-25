@@ -27,7 +27,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--logging-level', type=int, default=40,
                         help='The logging level')
     parser.add_argument("--mcts-engine", type=str, required=True,
-                        choices=['ClassicMCTS', 'AmEx_MCTS'],
+                        choices=['ClassicMCTS', 'AmEx_MCTS',
+                                 'ScoreBoundedMCTS'],
                         help="Which Engine should be used in MCTS?")
     parser.add_argument('--prior-source', type=str, required=True,
                         choices=['uniform', 'grammar'])

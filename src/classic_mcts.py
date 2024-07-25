@@ -34,6 +34,8 @@ class ClassicMCTS:
         self.game = game
         self.args = args
 
+        self.root = None
+
         # Static helper variables.
         self.action_size = game.getActionSize()
 
@@ -44,8 +46,8 @@ class ClassicMCTS:
         self.times_s_was_visited = {}  # stores #times board s was visited
         self.Ps = {}  # stores initial policy
         self.valid_moves_for_s = {}  # stores game.getValidMoves for board s
-        self.visits_done_state = 0 # Count visits of done states.
-        self.visits_roll_out = 0 # Count how often a new state is explored
+        self.visits_done_state = 0  # Count visits of done states.
+        self.visits_roll_out = 0  # Count how often a new state is explored
         self.logger = get_log_obj(args=args)
 
         self.temperature = None # exponentiation factor
@@ -143,6 +145,7 @@ class ClassicMCTS:
         self.visits_done_state = 0
         self.visits_roll_out = 0
         self.states_explored_till_perfect_fit = -1
+        self.root = None
 
     def initialize_root(self, state: GameState) -> \
             typing.Tuple[bytes, float]:
@@ -157,10 +160,11 @@ class ClassicMCTS:
         and inferred root-value.
         """
         s_0 = self.game.getHash(state=state)
+        self.root = s_0
 
         self.Ps[s_0], v_0 = self.get_prior_and_value(state)
         # Mask the prior for illegal moves, and re-normalize accordingly.
-        self.valid_moves_for_s[s_0] = self.game.getLegalMoves(state).astype(bool)
+        self.valid_moves_for_s[s_0] = self.game.getLegalMoves(state)
 
         self.Ps[s_0] *= self.valid_moves_for_s[s_0]
         self.Ps[s_0] = self.Ps[s_0] / np.sum(self.Ps[s_0])
@@ -257,7 +261,6 @@ class ClassicMCTS:
     def rollout_for_valid_moves(self, a, state_hash,
                                 state, path):
         # explore new part of the tree
-        value = 0
         next_state, reward = self.game.getNextState(
             state=state,
             action=a
@@ -284,8 +287,8 @@ class ClassicMCTS:
                     path=path + (a,)
                 )
                 value = (value_search + value) / 2
-        else:
-            # next state is done
+        else:  # next state is done
+            value = 0
             if reward >= 0.98:
                 self.states_explored_till_perfect_fit = len(self.times_s_was_visited)
         return value

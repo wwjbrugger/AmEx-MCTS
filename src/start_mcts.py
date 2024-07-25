@@ -2,6 +2,7 @@ import wandb
 
 import numpy as np
 
+from src.score_bounded_mcts import ScoreBoundedMCTS
 from src.utils.logging import get_log_obj
 
 from src.environments.gym_game import GymGame, make_env
@@ -14,42 +15,30 @@ import random
 import time
 
 
-def run_gym(args) -> (float, float):
-    """
-    Method to run MCTS approaches for gym environments
-    :param args:
-    :return: undiscounted_return and  discounted_return of the MCTS
-    """
-    np.random.seed(args.seed)
-    random.seed(args.seed)
+def run(game, args, obs_str):
     logger = get_log_obj(args=args, name=args.mcts_engine)
-
-    env = make_env(args.env_str, args.max_episode_steps)
-    game = GymGame(args, env)
-    wandb.config.update(game.env.spec.kwargs)
 
     if args.mcts_engine == 'AmEx_MCTS':
         mcts_engine = AmEx_MCTS(game=game, args=args)
     elif args.mcts_engine == 'ClassicMCTS':
         mcts_engine = ClassicMCTS(game=game, args=args)
+    elif args.mcts_engine == 'ScoreBoundedMCTS':
+        mcts_engine = ScoreBoundedMCTS(game=game, args=args)
     else:
-        raise AssertionError(f"args.engine: {args.engine} not defined")
+        raise AssertionError(f"args.engine: {args.mcts_engine} not defined")
     state = game.getInitialState()
-
     i = 0
     undiscounted_return = 0
     discounted_return = 0
     gamma = 1.0
     start_time = time.time()
-    next_state = None
+    actions = []
 
     while not state.done:
         pi, v = mcts_engine.run_mcts(state=state,
                                      num_mcts_sims=args.num_MCTS_sims,
                                      temperature=0)
-
         a = np.argmax(pi).item()
-        logger.debug(f"{i}, {a}, {pi}, {v}, {state.observation['obs']}")
         next_state, r = game.getNextState(
             state=state,
             action=a,
@@ -59,18 +48,41 @@ def run_gym(args) -> (float, float):
         discounted_return += gamma * r
         undiscounted_return += r
         gamma *= args.gamma
-    end_time = time.time()
-    wandb.log({
-        "mcts_actions: ": next_state.hash,
-        "run_time": end_time - start_time
-    })
 
-    # Cleanup environment and GameHistory
-    env.close()
+        logger.debug(f"{i}, {a}, {pi}, {v}, {state.observation[obs_str]}")
+
+        actions.append(a)
+
+    end_time = time.time()
 
     # Log results
     logger.debug(f"Return: {undiscounted_return}")
     logger.debug(f"Discounted Return: {discounted_return}")
+
+    wandb.log({
+        "mcts_actions: ": str(actions),
+        "run_time": end_time - start_time
+    })
+
+    return undiscounted_return, discounted_return
+
+
+def run_gym(args) -> (float, float):
+    """
+    Method to run MCTS approaches for gym environments
+    :param args:
+    :return: undiscounted_return and  discounted_return of the MCTS
+    """
+    env = make_env(args.env_str, args.max_episode_steps)
+    game = GymGame(args, env)
+    wandb.config.update(game.env.spec.kwargs)
+
+    obs_str = 'obs'
+
+    undiscounted_return, discounted_return = run(game, args, obs_str)
+
+    # Cleanup environment and GameHistory
+    env.close()
 
     return undiscounted_return, discounted_return
 
@@ -81,60 +93,25 @@ def run_equation(args) -> (float, float):
     :param args:
     :return:
     """
-    np.random.seed(args.seed)
-    random.seed(args.seed)
-    logger = get_log_obj(args=args, name=args.mcts_engine)
     grammar = read_grammar_file(args=args)
     game = FindEquationGame(
         grammar=grammar,
         args=args,
         train_test_or_val='train'
     )
+    obs_str = 'current_tree_representation_str'
 
-    if args.mcts_engine == 'AmEx_MCTS':
-        mcts_engine = AmEx_MCTS(game=game, args=args)
-    elif args.mcts_engine == 'ClassicMCTS':
-        mcts_engine = ClassicMCTS(game=game, args=args)
-    else:
-        raise AssertionError(f"args.engine: {args.engine} not defined")
-    state = game.getInitialState()
-    i = 0
-    undiscounted_return = 0
-    discounted_return = 0
-    gamma = 1.0
-
-    while not state.done:
-        pi, v = mcts_engine.run_mcts(state=state,
-                                     num_mcts_sims=args.num_MCTS_sims,
-                                     temperature=1.)
-        a = np.argmax(pi).item()
-        next_state, r = game.getNextState(
-            state=state,
-            action=a,
-        )
-        state = next_state
-        i += 1
-        discounted_return += gamma * r
-        undiscounted_return += r
-        gamma *= args.gamma
-
-        logger.debug(
-            f"{i}, {a}, {pi}, {v},"
-            f"{next_state.observation['current_tree_representation_str']}"
-        )
-
-        # Log results
-        logger.debug(f"Return: {undiscounted_return}")
-        logger.debug(f"Discounted Return: {discounted_return}")
-
-    return undiscounted_return, discounted_return
+    return run(game, args, obs_str)
 
 
 if __name__ == '__main__':
     parser_args = parse_args()
 
-    wandb.init(project="MCTSEndgame", config=parser_args.__dict__,
-               mode=parser_args.wandb)
+    np.random.seed(parser_args.seed)
+    random.seed(parser_args.seed)
+
+    wandb.init(project="SB-MCTS", config=parser_args.__dict__,
+               mode=parser_args.wandb, entity="mctsengame")
 
     if parser_args.env_str == "Equation":
         result, disc = run_equation(parser_args)
