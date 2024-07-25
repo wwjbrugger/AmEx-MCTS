@@ -208,5 +208,6 @@ class CompilerGymWrapper:
 
         return observation, reward, done, info
 
-    def close(self):
-        self.env.close()
+    @staticmethod
+    def close():
+        CompilerGymWrapper.env.close()
