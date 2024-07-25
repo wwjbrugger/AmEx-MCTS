@@ -207,3 +207,6 @@ class CompilerGymWrapper:
             done = True
 
         return observation, reward, done, info
+
+    def close(self):
+        self.env.close()
