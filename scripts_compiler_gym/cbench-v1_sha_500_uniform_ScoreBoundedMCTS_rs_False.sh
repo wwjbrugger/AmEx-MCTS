@@ -13,7 +13,7 @@
 #SBATCH -C anyarch 
 #SBATCH -o output_compiler_gym/\%x_\%j.out 
 #SBATCH -e output_compiler_gym/\%x_\%j.err 
-#SBATCH --mail-user=%u@uni-mainz.de 
+#SBATCH --mail-user=derstroc 
 #SBATCH --mail-type=FAIL 
 
 module purge 

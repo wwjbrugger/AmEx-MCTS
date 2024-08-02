@@ -122,7 +122,7 @@ def write_SBATCH_commants(settings_one_script, file1):
                      f"/\%x_\%j.out \n")
     file1.writelines(f"#SBATCH -e {settings_one_script['output_folder']}"
                      f"/\%x_\%j.err \n")
-    file1.writelines("#SBATCH --mail-user=%u@uni-mainz.de \n")
+    file1.writelines("#SBATCH --mail-user=derstroc \n")
     file1.writelines("#SBATCH --mail-type=FAIL \n")
     file1.writelines("\n")
 
