@@ -4,11 +4,11 @@ from pathlib import Path
 
 def run():
     parameter_list_dict = {
-        'job_array_size': [7],
+        'job_array_size': ['8-15'],
         'script_folder': ['scripts_compiler_gym'],
         'output_folder': ['output_compiler_gym'],
         ## General
-        'experiment_name': [ 'compiler_gym_sb'
+        'experiment_name': ['compiler_gym_sb'
         ],
         'minutes_to_run': [24],
         'logging_level': ['30'],
@@ -110,11 +110,11 @@ def write_SBATCH_commants(settings_one_script, file1):
     file1.writelines("#SBATCH --account=m2_datamining \n")
     file1.writelines(
         f"#SBATCH --time={int(settings_one_script['minutes_to_run'] * 60)} \n")
-    file1.writelines(f"#SBATCH --array=1-{settings_one_script['job_array_size']}%2 \n")
+    file1.writelines(f"#SBATCH --array={settings_one_script['job_array_size']}%2 \n")
     file1.writelines("#SBATCH --tasks=1 \n")
     file1.writelines("#SBATCH --nodes=1 \n")
     file1.writelines("#SBATCH --cpus-per-task=4 \n")
-    file1.writelines("#SBATCH --mem=64GB \n")
+    file1.writelines("#SBATCH --mem=57GB \n")
     file1.writelines("\n")
     file1.writelines("#SBATCH -o \%x_\%j_profile.out \n")
     file1.writelines("#SBATCH -C anyarch \n")
@@ -122,7 +122,7 @@ def write_SBATCH_commants(settings_one_script, file1):
                      f"/\%x_\%j.out \n")
     file1.writelines(f"#SBATCH -e {settings_one_script['output_folder']}"
                      f"/\%x_\%j.err \n")
-    file1.writelines("#SBATCH --mail-user=bruggerj@uni-mainz.de \n")
+    file1.writelines("#SBATCH --mail-user=%u@uni-mainz.de \n")
     file1.writelines("#SBATCH --mail-type=FAIL \n")
     file1.writelines("\n")
 
@@ -134,7 +134,7 @@ def write_prepare_enviroment(file1):
                      )
     file1.writelines("cd ..\n")
     file1.writelines("export PYTHONPATH=$PYTHONPATH:$(pwd) \n")
-    file1.writelines("export COMPILER_GYM_SITE_DATA='/home/bruggerj/MCTS-Endgame/compiler_gym_site_data' \n")
+    file1.writelines("export COMPILER_GYM_SITE_DATA=/home/$USER/AmEx-MCTS/compiler_gym_site_data \n")
     file1.writelines(
         "export http_proxy=http://webproxy.zdv.uni-mainz.de:8888 \n")
     file1.writelines(
