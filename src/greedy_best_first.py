@@ -27,7 +27,6 @@ class PrioritizedItem:
 
 
 class GreedyBestFirstSearch:
-
     def __init__(self, game, args) -> None:
         self.game = game
         self.args = args
@@ -38,6 +37,9 @@ class GreedyBestFirstSearch:
         s_0 = self.game.getHash(state=state)
 
         priority_queue = queue.PriorityQueue()
+
+        # add root
+        priority_queue.put(PrioritizedItem(self.simulate(state), state))
 
         S = []
 
@@ -52,16 +54,16 @@ class GreedyBestFirstSearch:
             node = item.item
             moves = self.game.getLegalMoves(node).astype(bool)
             child = None
-            for action in range(len(moves)):
-                if moves[action]:
-                    child, r = self.game.getNextState(node, action)
-                    if child.hash not in S:
-                        S.append(child.hash)
-                        priority_queue.put(PrioritizedItem(self.simulate(child) + r, child))
-                        # add parent again when not fully expanded
-                        priority_queue.put(
-                            PrioritizedItem(v, node))
-                        break
+            if not node.done:
+                for action in range(len(moves)):
+                    if moves[action]:
+                        child, r = self.game.getNextState(node, action)
+                        if child.hash not in S:
+                            S.append(child.hash)
+                            priority_queue.put(PrioritizedItem(self.simulate(child) + r, child))
+                            # add parent again when not fully expanded
+                            priority_queue.put(PrioritizedItem(v, node))
+                            break
 
             if child is None:
                 continue

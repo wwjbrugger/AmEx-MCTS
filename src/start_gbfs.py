@@ -13,7 +13,6 @@ from utils.utils import tie_breaking_argmax
 
 
 def run_gym(args) -> (float, float):
-    args.mcts_engine = "GreedyBestFirstSearch"
     np.random.seed(args.seed)
     random.seed(args.seed)
     logger = get_log_obj(args=args, name=args.mcts_engine)
@@ -66,9 +65,10 @@ def run_gym(args) -> (float, float):
 
 if __name__ == '__main__':
     parser_args = parse_args()
+    parser_args.mcts_engine = "GreedyBestFirstSearch"
 
     wandb.init(project="MCTSEndgame", config=parser_args.__dict__,
-               mode=parser_args.wandb)
+               mode=parser_args.wandb, entity="mctsengame")
 
     result, disc = run_gym(parser_args)
 

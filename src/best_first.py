@@ -60,13 +60,14 @@ class BestFirstSearch:
             item = priority_queue.get()
             v = item.priority
             node = item.item
-            moves = self.game.getLegalMoves(node).astype(bool)
-            for action in range(len(moves)):
-                if moves[action]:
-                    child, r = self.game.getNextState(node, action)
-                    if child.hash not in S:
-                        S.append(child.hash)
-                        priority_queue.put(PrioritizedItem(self.simulate(child) + r, child))
+            if not node.done:
+                moves = self.game.getLegalMoves(node).astype(bool)
+                for action in range(len(moves)):
+                    if moves[action]:
+                        child, r = self.game.getNextState(node, action)
+                        if child.hash not in S:
+                            S.append(child.hash)
+                            priority_queue.put(PrioritizedItem(self.simulate(child) + r, child))
 
             # backprop
             while node.previous_state != state:
