@@ -1,4 +1,4 @@
-# AmEx-MCTS: *Amplifying Exploration in Monte Carlo Tree Search by Focusing on the Unknown*
+# AmEx-MCTS: *Efficient Monte-Carlo Tree Search in Deterministic Environments*
 
 MCTS implementation for deterministic discrete action space MDPs, ensuring each terminal state is visited only once.
 
